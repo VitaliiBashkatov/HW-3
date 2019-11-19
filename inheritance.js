@@ -41,18 +41,18 @@ class Character{
 	}
 
 	_takeADamage(damage) {
-		this.currentHp -= damage;
+		this.setHitpoints(this.getHitpoints() - damage);
 	}
 
 	_healing(value) {
 		if(!this.isAlive()) {
 			console.log(`${this.name} is dead`);
-			return this.currentHp;
+			return this.getHitpoints();
 		}
-
-		const newHp = this.currentHp + value;
-		
-		return newHp > this.totalHp ? this.totalHp : newHp;
+		else{
+			const newHp = this.getHitpoints() + value;
+			this.setHitpoints (newHp > this.getTotalHitppoints() ? this.getTotalHitppoints(): newHp);
+		} 
 	}
 }
 
@@ -63,12 +63,11 @@ class Champion extends Character{
 	}
 
 	rest() {
-		this.currentHp = this._healing(5);
+		this._healing(5);
 	}
 
-	takeADamage(damage) {
-		if(this._block) return;
-		super.takeADamage(damage);
+	_takeADamage(damage) {
+		this._block ? this._block = false: super._takeADamage(damage);
 	}
 
 	defence(){
@@ -76,9 +75,9 @@ class Champion extends Character{
 	}
 	fight(character){
 
-		super.fight(character,this.attack);
+		super.fight(character,this.getAttack());
 
-		if(!character.isAlive()) this.attack++;
+		if(!character.isAlive()) this.setAttack(this.getAttack() + 1);
 	}
 }
 
@@ -95,32 +94,46 @@ class Monster extends Character{
 
 	fight(character) {
 		if(this._enrageStacks){
-			super.fight(character,this.attack * 2);
+			super.fight(character,this.getAttack() * 2);
 			this._enrageStacks--;
 		}
 		else{
-			super.fight(character,this.attack);
+			super.fight(character,this.getAttack());
 		}
 
 		if(!character.isAlive()) {
-			this.totalHp = Math.floor(this.totalHp + character.totalHp * 0.1);
-			this.currentHp = this._healing(Math.floor(character.totalHp * 0.25));
+			this.setTotalHitpoints( Math.floor(this.getTotalHitppoints() + character.getTotalHitppoints() * 0.1) );
+			this._healing(Math.floor(character.getTotalHitppoints() * 0.25));
 		}
 	}
 
  }
 
-	var heracles = new Champion({name: 'Heracles', attack: 10, hitpoints: 50})
+	var heracles = new Champion({name: 'Heracles', attack: 10, hitpoints: 30})
 	var boar = new Monster({name: 'Erymanthian Boar', attack: 5, hitpoints: 100});
 
-	boar.setAttack(30);
-	boar.getTotalHitppoints();
+	heracles.defence();
+	boar.fight(heracles);
+	console.log(heracles.getHitpoints());
+	boar.fight(heracles);
+	console.log(heracles.getHitpoints());
+	heracles.rest();
+	console.log(heracles.getHitpoints());
+	heracles.rest();
+	console.log(heracles.getHitpoints());
 	boar.enrage();
 	boar.fight(heracles);
-	console.log(heracles.isAlive());
-	heracles.getHitpoints();
-	heracles.rest();
-	heracles.getHitpoints();
-	boar.getTotalHitppoints();
+	console.log(heracles.getHitpoints());
+	boar.fight(heracles);
+	console.log(heracles.getHitpoints());
+	boar.fight(heracles);
+	heracles.fight(boar);
+	console.log(heracles.getHitpoints());
+	console.log(boar.getHitpoints());
+	console.log(boar.getTotalHitppoints());
+	boar.fight(heracles);
+	console.log(boar.getHitpoints());
+	console.log(boar.getTotalHitppoints());
+	
 
 	
